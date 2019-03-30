@@ -1,0 +1,536 @@
+{
+	"info": {
+		"_postman_id": "2ce472a1-2814-4c1b-aee6-4377f3600db7",
+		"name": "Reqres",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET_single_user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "df449e7e-4b1f-4d6a-9800-570c400156fa",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 200 ?\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Is name George ?\", function () {",
+							"    pm.expect(jsonData.data.first_name).to.eql(\"George\");",
+							"});",
+							"",
+							"//TEST3",
+							"pm.test(\"Cookie check\", function () {",
+							"    var token = postman.getResponseCookie(\"__cfduid\").domain;",
+							"    pm.expect(token).to.eql(\"reqres.in\");",
+							"});",
+							"",
+							"//Variable set",
+							"pm.environment.set(\"last_name\", jsonData.data.last_name);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/users/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET_users_list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f09a87b7-6885-4e56-bb16-6deb4cac1c3b",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 200 ?\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Is page == 1 ?\", function () {",
+							"    pm.expect(jsonData.page).to.eql(1);",
+							"});",
+							"",
+							"//ITERATION",
+							"let actualLastName;",
+							"for(let data of jsonData.data){",
+							"    if(data.id === 1){",
+							"        actualLastName = data.last_name;",
+							"    }",
+							"}",
+							"",
+							"//TEST3",
+							"pm.test(\"last_name of id=1 ?\", function(){",
+							"    pm.expect(actualLastName).to.eql(pm.environment.get(\"last_name\"));",
+							"});",
+							"",
+							"//Variable unset",
+							"pm.environment.unset(\"last_name\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/users?page=1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET_not_found",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bff2b96d-fead-47d3-b834-856761ddfec1",
+						"exec": [
+							"//TEST1",
+							"pm.test(\"Is status code 404 ?\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Response time is less than 600ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(600);",
+							"});",
+							"",
+							"//TEST3",
+							"pm.test(\"Header check\", function () {",
+							"    pm.response.to.have.header('Connection');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}{{endpoint404}}",
+					"host": [
+						"{{url}}{{endpoint404}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST_create_user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5fa991e8-88e5-42c1-9a39-661e845c6fda",
+						"exec": [
+							"pm.environment.set(\"name\", \"MatBylin\");",
+							"pm.environment.set(\"job\", \"Software Tester\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "d360d506-9c77-4239-8960-7dc4b134d298",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 201 ?\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Validate created data\", function () {",
+							"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"name\"));",
+							"    pm.expect(jsonData.job).to.eql(pm.environment.get(\"job\"));",
+							"});",
+							"",
+							"//Variable unset",
+							"pm.environment.unset(\"name\");",
+							"pm.environment.unset(\"job\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{name}}\",\r\n    \"job\": \"{{job}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/users",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT_update_user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "1d091f9f-97fc-4281-8fd3-e17dc501deb3",
+						"exec": [
+							"pm.environment.set(\"name\", \"NewMatBylin\");",
+							"pm.environment.set(\"job\", \"Automated Tester\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "27a71a34-c3a4-4a10-aba5-e5354575ee81",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 201 ?\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Validate created data\", function () {",
+							"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"name\"));",
+							"    pm.expect(jsonData.job).to.eql(pm.environment.get(\"job\"));",
+							"});",
+							"",
+							"//TEST3",
+							"pm.test(\"Cookie check\", function () {",
+							"    var token = postman.getResponseCookie(\"__cfduid\").domain;",
+							"    pm.expect(token).to.eql(\"reqres.in\");",
+							"});",
+							"",
+							"//Variable unset",
+							"pm.environment.unset(\"name\");",
+							"pm.environment.unset(\"job\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{name}}\",\r\n    \"job\": \"{{job}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/users/2",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE_user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "254ce633-de22-4ee7-ad09-00b6716ab6d7",
+						"exec": [
+							"//TEST1",
+							"pm.test(\"Is status code 204 ?\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Cookie check\", function () {",
+							"    var token = postman.getResponseCookie(\"__cfduid\").domain;",
+							"    pm.expect(token).to.eql(\"reqres.in\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/users/2",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST_register_successful",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6bf81818-83a2-4fe8-9e27-b2b835d2b13e",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 201 ?\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Response conatains 'token' ?\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"token\");",
+							"});",
+							"",
+							"//TEST3",
+							"pm.test(\"Token == QpwL5tke4Pnpja7X' ?\", function () {",
+							"    pm.expect(jsonData.token).to.eql(\"QpwL5tke4Pnpja7X\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/register",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST_register_unsuccessful",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e3a912af-abbf-4f06-9f4f-a1cc781153e5",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 400 ?\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Response conatains 'error' ?\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"error\");",
+							"});",
+							"",
+							"//TEST3",
+							"pm.test(\"Response conatains 'Missing password' ?\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Missing password\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"sydney@fife\"\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/register",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET_delayed_response",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "04a77580-5050-4a90-befc-4c89d1ff4e17",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4e588b9-90e3-4b9d-b370-5e463771a42a",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"//TEST1",
+							"pm.test(\"Is status code 200 ?\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//TEST2",
+							"pm.test(\"Is page == 1 ?\", function () {",
+							"    pm.expect(jsonData.page).to.eql(1);",
+							"});",
+							"",
+							"//TEST3",
+							"pm.test(\"Delayed response time is less than 2850ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(2850);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/users?delay=2",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "delay",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
